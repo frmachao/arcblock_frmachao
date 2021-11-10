@@ -1,0 +1,92 @@
+@import '~antd/dist/antd.less';
+
+.demo_container {
+  text-align: left;
+  width: 100%;
+  min-height: 100vh;
+  padding: 1.5rem;
+  .block_head {
+    display: flex;
+    -webkit-box-pack: justify;
+    justify-content: space-between;
+    -webkit-box-align: center;
+    align-items: center;
+    width: 100%;
+    margin-top: 1rem;
+    padding: 1rem 0px;
+  }
+}
+.typography_title {
+  display: flex;
+  -webkit-box-align: center;
+  align-items: center;
+}
+.demo_container .block_list {
+  display: flex;
+  flex-direction: column;
+  -webkit-box-pack: start;
+  justify-content: flex-start;
+  align-items: flex-start;
+  width: 100%;
+  .block_item {
+    display: flex;
+    flex-direction: row;
+    -webkit-box-pack: start;
+    justify-content: flex-start;
+    -webkit-box-align: center;
+    align-items: center;
+    width: 100%;
+    border-bottom: 1px solid rgb(223, 227, 235);
+    .block_text {
+      padding: 0.8rem 0;
+      width: 100%;
+      font-weight: 500;
+      font-size: 14px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      height: auto;
+      .title {
+        color: rgb(103, 113, 133);
+      }
+      .value {
+        display: flex;
+        flex-direction: row;
+        -webkit-box-pack: start;
+        justify-content: flex-start;
+        -webkit-box-align: center;
+        align-items: center;
+      }
+    }
+    .block_text:first-child {
+      width: 50%;
+    }
+  }
+}
+.demo_container .transaction {
+  .ant-list-item {
+    border: none;
+  }
+  .amount {
+    display: block;
+    padding: 0.25rem;
+    color: rgb(0, 135, 90);
+    background: rgb(209, 240, 219);
+    border: 1px solid rgb(209, 240, 219);
+    border-radius: 0.25rem;
+    cursor: pointer;
+    width: fit-content !important;
+  }
+  .md_none {
+    @media (min-width: 768px) {
+      visibility: hidden;
+    }
+  }
+  .sm_none {
+    @media (max-width: 768px) {
+      display: none;
+    }
+  }
+  .col_padding {
+    padding: 0.8rem 0;
+  }
+}
