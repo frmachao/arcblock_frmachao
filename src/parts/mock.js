@@ -1,3 +1,4 @@
+/* eslint-disable import/prefer-default-export */
 const blockList = {
   Hash: '00000000000000000007878ec04bb2b2e12317804810f4c26033585b3f81ffaa',
   Confirmations: '46,562',
@@ -5,5 +6,5 @@ const blockList = {
   Miner: 'Poolin',
   'Number of Transactions': '912',
 };
-// eslint-disable-next-line import/prefer-default-export
+
 export { blockList };

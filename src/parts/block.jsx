@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import React from 'react';
+import React, { useState } from 'react';
 import { PropTypes } from 'prop-types';
 import { Typography, Radio, Tooltip, Row, Col } from 'antd';
 import { Link } from 'react-router-dom';
@@ -8,6 +8,10 @@ import { InfoCircleFilled } from '@ant-design/icons';
 const { Title, Paragraph, Text } = Typography;
 
 const BlockContainer = () => {
+  const [unit, setUnit] = useState('USD');
+  const changeUnit = () => {
+    setUnit(unit === 'USD' ? 'BTC' : 'USD');
+  };
   return (
     <div>
       <Typography>
@@ -28,7 +32,10 @@ const BlockContainer = () => {
                 { label: 'USD', value: 'USD' },
                 { label: 'BTC', value: 'BTC' },
               ]}
-              value="USD"
+              onChange={(e) => {
+                setUnit(e.target.value);
+              }}
+              value={unit}
               optionType="button"
               buttonStyle="solid"
             />
@@ -69,7 +76,7 @@ const BlockContainer = () => {
         />
         <BlockITem title="Miner" value="Poolin" action="link" link="/demo" />
       </div>
-      <Transaction />
+      <Transaction changeUnit={changeUnit} />
     </div>
   );
 };
@@ -109,7 +116,7 @@ const BlockITem = ({ title, value, action, link }) => {
     </div>
   );
 };
-const Transaction = () => {
+const Transaction = ({ changeUnit }) => {
   return (
     <div style={{ marginTop: '2rem' }} className="transaction">
       <BlockTitle
@@ -122,12 +129,11 @@ const Transaction = () => {
           </>
         }
       />
-      <TransactionItem />
-      <TransactionItem />
+      <TransactionItem changeUnit={changeUnit} />
     </div>
   );
 };
-const TransactionItem = () => {
+const TransactionItem = ({ changeUnit }) => {
   const loadMore = () => {
     console.log('加载更多');
   };
@@ -140,7 +146,14 @@ const TransactionItem = () => {
               Fee
             </Col>
             <Col xs={19} sm={19} md={17}>
-              <Text ellipsis>223.214 sat/B - 55.804 sat/WU - 224 bytes</Text>
+              <Row>
+                <Text ellipsis>0.00075690 BTC</Text>
+              </Row>
+              <Row>
+                <Text ellipsis title="223.214 sat/B - 55.804 sat/WU - 224 bytes">
+                  223.214 sat/B - 55.804 sat/WU - 224 bytes
+                </Text>
+              </Row>
             </Col>
           </Row>
         </Col>
@@ -150,7 +163,9 @@ const TransactionItem = () => {
               Amount
             </Col>
             <Col xs={19} sm={19} md={17}>
-              <span className="amount">2.69738115 BTC</span>
+              <span className="amount" onClick={changeUnit}>
+                2.69738115 BTC
+              </span>
             </Col>
           </Row>
         </Col>
@@ -258,5 +273,11 @@ BlockITem.defaultProps = {
 BlockTitle.propTypes = {
   title: PropTypes.string.isRequired,
   tips: PropTypes.element.isRequired,
+};
+Transaction.propTypes = {
+  changeUnit: PropTypes.func.isRequired,
+};
+TransactionItem.propTypes = {
+  changeUnit: PropTypes.func.isRequired,
 };
 export default BlockContainer;
