@@ -1,27 +1,47 @@
 /* eslint-disable no-console */
-import React, { useState } from 'react';
+import React from 'react';
 import { PropTypes } from 'prop-types';
-import { Typography, Radio, Tooltip, Row, Col } from 'antd';
+import { Typography, Radio, Tooltip, Row, Col, Result, Button, Skeleton } from 'antd';
 import { Link } from 'react-router-dom';
+import { observer } from 'mobx-react-lite';
 import { InfoCircleFilled } from '@ant-design/icons';
+import { useDemoStore } from './demo-state';
+import { translationCurrency, getRandom, humanTime, getVlaueSum } from './utils';
 
 const { Title, Paragraph, Text } = Typography;
 
-const BlockContainer = () => {
-  const [unit, setUnit] = useState('USD');
-  const changeUnit = () => {
-    setUnit(unit === 'USD' ? 'BTC' : 'USD');
-  };
+const BlockContainer = observer(() => {
+  const demoStore = useDemoStore();
+  const { blockData, currentList } = demoStore;
+  if (demoStore.error)
+    return (
+      <Result
+        status="404"
+        title={demoStore.error}
+        extra={
+          <Link to="/">
+            <Button type="primary">Back Home</Button>
+          </Link>
+        }
+      />
+    );
+  if (!blockData || !currentList)
+    return (
+      <>
+        <Skeleton active />
+        <Skeleton active />
+      </>
+    );
   return (
     <div>
       <Typography>
         <div className="block_head">
           <BlockTitle
-            title="Block 6662463"
+            title={`Block ${blockData.height}`}
             tips={
               <>
                 <p>Block at height</p>
-                <p>662463 in the </p>
+                <p>{blockData.height} in the </p>
                 <p>Bitcoin blockchain</p>
               </>
             }
@@ -33,9 +53,9 @@ const BlockContainer = () => {
                 { label: 'BTC', value: 'BTC' },
               ]}
               onChange={(e) => {
-                setUnit(e.target.value);
+                demoStore.setUnit(e.target.value);
               }}
-              value={unit}
+              value={demoStore.unit}
               optionType="button"
               buttonStyle="solid"
             />
@@ -43,44 +63,44 @@ const BlockContainer = () => {
         </div>
 
         <Paragraph>
-          This block was mined on December 22, 2020 at 3:09 PM GMT+8 by{' '}
-          <Link to="/demo" component={Typography.Link}>
-            Poolin
-          </Link>
-          . It currently has 46,562 confirmations on the Bitcoin blockchain.
+          This block was mined on {humanTime(blockData.time)} by <Typography.Link>Machao</Typography.Link>. It currently
+          has {getRandom(0, 10000)} confirmations on the Bitcoin blockchain.
         </Paragraph>
         <Paragraph>
-          The miner(s) of this block earned a total reward of 6.25000000 BTC ($416,066.50). The reward consisted of a
-          base reward of 6.25000000 BTC ($416,066.50) with an additional 0.16583560 BTC ($11,039.78) reward paid as fees
-          of the 912 transactions which were included in the block. The Block rewards, also known as the Coinbase
-          reward, were sent to this{' '}
-          <Link to="/demo" component={Typography.Link}>
-            address
-          </Link>
-          .
+          The miner(s) of this block earned a total reward of {translationCurrency(getRandom(0, 67774), 'BTC')}{' '}
+          {translationCurrency(getRandom(0, 67774), 'USD')}. The reward consisted of a base reward of{' '}
+          {translationCurrency(getRandom(0, 67774), 'BTC')}
+          {translationCurrency(getRandom(0, 67774), 'USD')} with an additional 0.16583560 BTC ($11,039.78) reward paid
+          as fees of the {blockData.n_tx} transactions which were included in the block. The Block rewards, also known
+          as the Coinbase reward, were sent to this <Typography.Link>address</Typography.Link>.
         </Paragraph>
         <Paragraph>
-          A total of 306.51676953 BTC ($20,405,017.52) were sent in the block with the average transaction being
-          0.33609295 BTC ($22,373.92). Learn more about{' '}
-          <Link to="/demo" component={Typography.Link}>
-            how blocks work
-          </Link>
-          .
+          A total of {translationCurrency(getRandom(0, 67774), 'BTC')}
+          {translationCurrency(getRandom(0, 67774), 'USD')} were sent in the block with the average transaction being
+          0.33609295 BTC ($22,373.92). Learn more about
+          <Typography.Link> how blocks work</Typography.Link>.
         </Paragraph>
       </Typography>
       <div className="block_list">
-        <BlockITem
-          title="hash"
-          value="00000000000000000007878ec04bb2b2e12317804810f4c26033585b3f81ffaa"
-          action="copy"
-        />
-        <BlockITem title="Miner" value="Poolin" action="link" link="/demo" />
+        <BlockITem title="Hash" value={blockData.hash} action="copy" />
+        <BlockITem title="Confirmations" value={getRandom(0, 10000)} />
+        <BlockITem title="Timestamp" value={humanTime(blockData.time)} />
+        <BlockITem title="Height" value={blockData.time} />
+        <BlockITem title="Miner" value="Machao" action="link" link="/demo" />
+        <BlockITem title="Number of Transactions" value={blockData.n_tx} />
+        <BlockITem title="Merkle root" value={blockData.mrkl_root} />
+        <BlockITem title="Version" value={blockData.ver} />
+        <BlockITem title="Bits" value={blockData.bits} />
+        <BlockITem title="Weight" value={blockData.weight} />
+        <BlockITem title="Size" value={blockData.size} />
+        <BlockITem title="Nonce" value={blockData.nonce} />
+        <BlockITem title="Fee Reward" value={translationCurrency(blockData.fee / 100000000, demoStore.unit)} />
       </div>
-      <Transaction changeUnit={changeUnit} />
+      <Transaction />
     </div>
   );
-};
-const BlockTitle = ({ title, tips }) => {
+});
+const BlockTitle = observer(({ title, tips }) => {
   return (
     <div className="typography_title">
       <Title level={3} style={{ marginBottom: '0' }}>
@@ -91,8 +111,8 @@ const BlockTitle = ({ title, tips }) => {
       </Tooltip>
     </div>
   );
-};
-const BlockITem = ({ title, value, action, link }) => {
+});
+const BlockITem = observer(({ title, value, action }) => {
   return (
     <div className="block_item">
       <div className="block_text">
@@ -103,9 +123,7 @@ const BlockITem = ({ title, value, action, link }) => {
       <div className="block_text">
         <div className="value">
           {action === 'link' ? (
-            <Link to={link} component={Typography.Link}>
-              {value}
-            </Link>
+            <Typography.Link>{value}</Typography.Link>
           ) : (
             <Text copyable={action === 'copy'} ellipsis>
               {value}
@@ -115,8 +133,10 @@ const BlockITem = ({ title, value, action, link }) => {
       </div>
     </div>
   );
-};
-const Transaction = ({ changeUnit }) => {
+});
+const Transaction = observer(() => {
+  const demoStore = useDemoStore();
+  const { blockData, currentList } = demoStore;
   return (
     <div style={{ marginTop: '2rem' }} className="transaction">
       <BlockTitle
@@ -124,16 +144,19 @@ const Transaction = ({ changeUnit }) => {
         tips={
           <>
             <p>Block at height</p>
-            <p>662463 in the </p>
+            <p>{blockData.height} in the </p>
             <p>Bitcoin blockchain</p>
           </>
         }
       />
-      <TransactionItem changeUnit={changeUnit} />
+      {currentList.map((item) => {
+        return <TransactionItem key={item.hash} changeUnit={demoStore.changeUnit} item={item} unit={demoStore.unit} />;
+      })}
     </div>
   );
-};
-const TransactionItem = ({ changeUnit }) => {
+});
+const TransactionItem = observer((props) => {
+  const { item, unit, changeUnit } = props;
   const loadMore = () => {
     console.log('加载更多');
   };
@@ -147,12 +170,12 @@ const TransactionItem = ({ changeUnit }) => {
             </Col>
             <Col xs={19} sm={19} md={17}>
               <Row>
-                <Text ellipsis>0.00075690 BTC</Text>
+                <Text ellipsis>{translationCurrency(item.fee / 100000000, unit)}</Text>
               </Row>
               <Row>
-                <Text ellipsis title="223.214 sat/B - 55.804 sat/WU - 224 bytes">
+                {/* <Text ellipsis title="223.214 sat/B - 55.804 sat/WU - 224 bytes">
                   223.214 sat/B - 55.804 sat/WU - 224 bytes
-                </Text>
+                </Text> */}
               </Row>
             </Col>
           </Row>
@@ -164,7 +187,7 @@ const TransactionItem = ({ changeUnit }) => {
             </Col>
             <Col xs={19} sm={19} md={17}>
               <span className="amount" onClick={changeUnit}>
-                2.69738115 BTC
+                {translationCurrency(getVlaueSum(item.out), unit)}
               </span>
             </Col>
           </Row>
@@ -178,7 +201,7 @@ const TransactionItem = ({ changeUnit }) => {
             </Col>
             <Col xs={19} sm={19} md={17}>
               <Text ellipsis>
-                <Link to="/demo">c7f3c833da17c2cfe64753c200c713c1b5806dbe3080d5e0e5293a6b7b0679fc</Link>
+                <Typography.Link>{item.hash}</Typography.Link>
               </Text>
             </Col>
           </Row>
@@ -204,14 +227,14 @@ const TransactionItem = ({ changeUnit }) => {
               <Row>
                 <Col xs={12} md={10} sm={24}>
                   <Text ellipsis>
-                    <Link to="/demo">1JFyG4gDcCip3tboQaUZct4vrBqybUYvd7</Link>
+                    <Typography.Link>1JFyG4gDcCip3tboQaUZct4vrBqybUYvd7</Typography.Link>
                   </Text>
                 </Col>
                 <Col xs={12} md={14} sm={24}>
                   <div>
                     <span>2.69788115 BTC</span>
                     <Tooltip title="Output">
-                      <Link to="/demo"> 🌍 </Link>
+                      <Typography.Link> 🌍 </Typography.Link>
                     </Tooltip>
                     <span className="sm_none"> ➡️ </span>
                   </div>
@@ -229,7 +252,7 @@ const TransactionItem = ({ changeUnit }) => {
               <Row>
                 <Col xs={12} md={12} sm={24}>
                   <Text ellipsis>
-                    <Link to="/demo">1JFyG4gDcCip3tboQaUZct4vrBqybUYvd7</Link>
+                    <Typography.Link>1JFyG4gDcCip3tboQaUZct4vrBqybUYvd7</Typography.Link>
                   </Text>
                 </Col>
                 <Col xs={12} md={12} sm={24}>
@@ -237,7 +260,7 @@ const TransactionItem = ({ changeUnit }) => {
                 </Col>
                 <Col xs={12} md={12} sm={24}>
                   <Text ellipsis>
-                    <Link to="/demo">1JFyG4gDcCip3tboQaUZct4vrBqybUYvd7</Link>
+                    <Typography.Link>1JFyG4gDcCip3tboQaUZct4vrBqybUYvd7</Typography.Link>
                   </Text>
                 </Col>
                 <Col xs={12} md={12} sm={24}>
@@ -245,7 +268,7 @@ const TransactionItem = ({ changeUnit }) => {
                 </Col>
                 <Col xs={12} md={12} sm={24}>
                   <Text ellipsis>
-                    <Link to="/demo">1JFyG4gDcCip3tboQaUZct4vrBqybUYvd7</Link>
+                    <Typography.Link>1JFyG4gDcCip3tboQaUZct4vrBqybUYvd7</Typography.Link>
                   </Text>
                 </Col>
                 <Col xs={12} md={12} sm={24}>
@@ -259,10 +282,10 @@ const TransactionItem = ({ changeUnit }) => {
       </Row>
     </>
   );
-};
+});
 BlockITem.propTypes = {
   title: PropTypes.string.isRequired,
-  value: PropTypes.string.isRequired,
+  value: PropTypes.string.isRequired || PropTypes.number.isRequired,
   action: PropTypes.string,
   link: PropTypes.string,
 };
@@ -274,10 +297,10 @@ BlockTitle.propTypes = {
   title: PropTypes.string.isRequired,
   tips: PropTypes.element.isRequired,
 };
-Transaction.propTypes = {
-  changeUnit: PropTypes.func.isRequired,
-};
-TransactionItem.propTypes = {
-  changeUnit: PropTypes.func.isRequired,
-};
+// Transaction.propTypes = {
+//   changeUnit: PropTypes.func.isRequired,
+// };
+// TransactionItem.propTypes = {
+//   changeUnit: PropTypes.func.isRequired,
+// };
 export default BlockContainer;

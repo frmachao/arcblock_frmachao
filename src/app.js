@@ -8,7 +8,7 @@ import Demo from './pages/demo';
 import { DemoState } from './parts/demo-state';
 
 configure({
-  enforceActions: 'never', // 不使用严格模式
+  enforceActions: 'never',
 });
 function App() {
   return (
