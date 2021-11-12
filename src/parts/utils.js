@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 /**
  * fake amount
  * @param {number} value
@@ -6,13 +5,13 @@
  * @returns {string}
  */
 const translationCurrency = (value, type) => {
-  let innerVlue = value;
+  let innerVlue = value / 100000000;
   switch (type) {
     case 'USD':
-      innerVlue = (value * 64447).toFixed(2);
+      innerVlue = (innerVlue * 64447).toFixed(2);
       return `$${innerVlue}`;
     default:
-      innerVlue = value.toFixed(6);
+      innerVlue = innerVlue.toFixed(6);
       return `${innerVlue} BTC`;
   }
 };
@@ -21,12 +20,23 @@ const translationCurrency = (value, type) => {
  * @param {number} timestamp
  * @returns {Date}
  */
-const humanTime = (timestamp) => {
+const toUTCString = (timestamp) => {
   if (timestamp) {
     return new Date(timestamp * 1000).toUTCString();
   }
   return '';
 };
+/**
+ *
+ * @param {number} timestamp
+ * @returns {string}
+ */
+const absoluteHumanTime = (timestamp) => {
+  const date = new Date(timestamp * 1000);
+  const m = date.getMinutes() < 10 ? `0${date.getMinutes()}` : date.getMinutes();
+  return `${date.getFullYear()}.${date.getMonth() + 1}.${date.getDate()} ${date.getHours()}:${m}`;
+};
+
 /**
  *
  * @param {number} n
@@ -51,9 +61,8 @@ const awaitWrap = (promise) => {
  * @returns {number}
  */
 const getVlaueSum = (array) => {
-  console.log('array', array);
   const sum = array.reduce((pre, cur) => pre + cur.value, 0);
-  return sum / 100000000;
+  return sum;
 };
 
-export { humanTime, translationCurrency, getRandom, awaitWrap, getVlaueSum };
+export { toUTCString, translationCurrency, getRandom, awaitWrap, getVlaueSum, absoluteHumanTime };

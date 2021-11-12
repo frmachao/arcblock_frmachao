@@ -1,5 +1,7 @@
 @import '~antd/dist/antd.less';
 
+@amountcolor:rgb(0, 135, 90);
+
 .demo_container {
   text-align: left;
   width: 100%;
@@ -66,10 +68,13 @@
   .ant-list-item {
     border: none;
   }
+  .COINBASE {
+    color: @amountcolor;
+  }
   .amount {
     display: block;
     padding: 0.25rem;
-    color: rgb(0, 135, 90);
+    color: @amountcolor;
     background: rgb(209, 240, 219);
     border: 1px solid rgb(209, 240, 219);
     border-radius: 0.25rem;

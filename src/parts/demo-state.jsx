@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import React, { createContext } from 'react';
 import { PropTypes } from 'prop-types';
 import { useLocalObservable } from 'mobx-react-lite';
@@ -21,28 +20,49 @@ export const DemoState = ({ children }) => {
       total: 0,
     },
     changeUnit: () => {
-      // eslint-disable-next-line no-unused-expressions
-      store.unit === 'USD' ? store.setUnit('BTC') : store.setUnit('USD');
+      if (store.unit === 'USD') {
+        store.setUnit('BTC');
+      } else {
+        store.setUnit('USD');
+      }
     },
     setUnit: (value) => {
       store.unit = value;
     },
     setCurrentData: (current, pageSize, list) => {
       const innerlist = list || store.blockData.tx;
-      store.currentList = innerlist.slice((current - 1) * pageSize, pageSize + (current - 1) * pageSize);
+      store.currentList = innerlist
+        .slice((current - 1) * pageSize, pageSize + (current - 1) * pageSize)
+        .map((item) => ({
+          ...item,
+          littleInputs: item.inputs.slice(0, 5),
+          littleOuts: item.out.slice(0, 5),
+          extendInput: item.inputs.length > 5, // 控制显示是否加载更多 true
+          extendOut: item.out.length > 5, // 控制显示是否加载更多 true
+        }));
     },
-    fetchBlock: async (hash) => {
+    setExtend: (type, hash) => {
+      store.currentList = store.currentList.map((item) => {
+        if (item.hash !== hash) {
+          return item;
+        }
+        if (type === 'input') {
+          return { ...item, extendInput: !item.extendInput };
+        }
+        return { ...item, extendOut: !item.extendOut };
+      });
+    },
+    fetchBlock: async (hash, current, pageSize) => {
       store.loading = true;
       const [error, response] = await awaitWrap(request.get(`/${hash || store.hash}`));
       store.loading = false;
       if (error) {
-        console.log('err', error.message);
         store.error = error.message;
         return;
       }
       const list = response.tx ? response.tx : [];
       const { pageInfo } = store;
-      store.setCurrentData(pageInfo.current, pageInfo.pageSize, list);
+      store.setCurrentData(Number(current) || pageInfo.current, Number(pageSize) || pageInfo.pageSize, list);
       store.blockData = response;
       store.pageInfo = { ...store.pageInfo, total: response.tx.length };
     },

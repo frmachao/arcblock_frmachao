@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import React from 'react';
 import { PropTypes } from 'prop-types';
 import { Typography, Radio, Tooltip, Row, Col, Result, Button, Skeleton } from 'antd';
@@ -6,7 +5,7 @@ import { Link } from 'react-router-dom';
 import { observer } from 'mobx-react-lite';
 import { InfoCircleFilled } from '@ant-design/icons';
 import { useDemoStore } from './demo-state';
-import { translationCurrency, getRandom, humanTime, getVlaueSum } from './utils';
+import { translationCurrency, getRandom, toUTCString, getVlaueSum, absoluteHumanTime } from './utils';
 
 const { Title, Paragraph, Text } = Typography;
 
@@ -63,8 +62,8 @@ const BlockContainer = observer(() => {
         </div>
 
         <Paragraph>
-          This block was mined on {humanTime(blockData.time)} by <Typography.Link>Machao</Typography.Link>. It currently
-          has {getRandom(0, 10000)} confirmations on the Bitcoin blockchain.
+          This block was mined on {toUTCString(blockData.time)} by <Typography.Link>Machao</Typography.Link>. It
+          currently has {getRandom(0, 10000)} confirmations on the Bitcoin blockchain.
         </Paragraph>
         <Paragraph>
           The miner(s) of this block earned a total reward of {translationCurrency(getRandom(0, 67774), 'BTC')}{' '}
@@ -84,7 +83,7 @@ const BlockContainer = observer(() => {
       <div className="block_list">
         <BlockITem title="Hash" value={blockData.hash} action="copy" />
         <BlockITem title="Confirmations" value={getRandom(0, 10000)} />
-        <BlockITem title="Timestamp" value={humanTime(blockData.time)} />
+        <BlockITem title="Timestamp" value={toUTCString(blockData.time)} />
         <BlockITem title="Height" value={blockData.time} />
         <BlockITem title="Miner" value="Machao" action="link" link="/demo" />
         <BlockITem title="Number of Transactions" value={blockData.n_tx} />
@@ -94,7 +93,7 @@ const BlockContainer = observer(() => {
         <BlockITem title="Weight" value={blockData.weight} />
         <BlockITem title="Size" value={blockData.size} />
         <BlockITem title="Nonce" value={blockData.nonce} />
-        <BlockITem title="Fee Reward" value={translationCurrency(blockData.fee / 100000000, demoStore.unit)} />
+        <BlockITem title="Fee Reward" value={translationCurrency(blockData.fee, demoStore.unit)} />
       </div>
       <Transaction />
     </div>
@@ -150,16 +149,21 @@ const Transaction = observer(() => {
         }
       />
       {currentList.map((item) => {
-        return <TransactionItem key={item.hash} changeUnit={demoStore.changeUnit} item={item} unit={demoStore.unit} />;
+        return (
+          <TransactionItem
+            key={item.hash}
+            changeUnit={demoStore.changeUnit}
+            item={item}
+            unit={demoStore.unit}
+            setExtend={demoStore.setExtend}
+          />
+        );
       })}
     </div>
   );
 });
 const TransactionItem = observer((props) => {
-  const { item, unit, changeUnit } = props;
-  const loadMore = () => {
-    console.log('加载更多');
-  };
+  const { item, unit, changeUnit, setExtend } = props;
   return (
     <>
       <Row>
@@ -170,7 +174,9 @@ const TransactionItem = observer((props) => {
             </Col>
             <Col xs={19} sm={19} md={17}>
               <Row>
-                <Text ellipsis>{translationCurrency(item.fee / 100000000, unit)}</Text>
+                <Text ellipsis title={translationCurrency(item.fee, unit)}>
+                  {translationCurrency(item.fee, unit)}
+                </Text>
               </Row>
               <Row>
                 {/* <Text ellipsis title="223.214 sat/B - 55.804 sat/WU - 224 bytes">
@@ -200,7 +206,7 @@ const TransactionItem = observer((props) => {
               Hash
             </Col>
             <Col xs={19} sm={19} md={17}>
-              <Text ellipsis>
+              <Text ellipsis title={item.hash}>
                 <Typography.Link>{item.hash}</Typography.Link>
               </Text>
             </Col>
@@ -212,7 +218,7 @@ const TransactionItem = observer((props) => {
               Date
             </Col>
             <Col xs={19} sm={19} md={17}>
-              2020-12-22 15:09
+              {absoluteHumanTime(item.time)}
             </Col>
           </Row>
         </Col>
@@ -223,23 +229,14 @@ const TransactionItem = observer((props) => {
             <Col xs={5} sm={5} md={7} className="md_none">
               From
             </Col>
+
             <Col xs={19} sm={19} md={17}>
-              <Row>
-                <Col xs={12} md={10} sm={24}>
-                  <Text ellipsis>
-                    <Typography.Link>1JFyG4gDcCip3tboQaUZct4vrBqybUYvd7</Typography.Link>
-                  </Text>
-                </Col>
-                <Col xs={12} md={14} sm={24}>
-                  <div>
-                    <span>2.69788115 BTC</span>
-                    <Tooltip title="Output">
-                      <Typography.Link> 🌍 </Typography.Link>
-                    </Tooltip>
-                    <span className="sm_none"> ➡️ </span>
-                  </div>
-                </Col>
-              </Row>
+              {item.extendInput
+                ? item.littleInputs.map((input) => <InputBase input={input} key={input.index} unit={unit} />)
+                : item.inputs.map((input) => <InputBase input={input} key={input.index} unit={unit} />)}
+              {item.extendInput && (
+                <Typography.Link onClick={() => setExtend('input', item.hash)}>Load more inputs...</Typography.Link>
+              )}
             </Col>
           </Row>
         </Col>
@@ -249,33 +246,12 @@ const TransactionItem = observer((props) => {
               To
             </Col>
             <Col xs={19} sm={19} md={17}>
-              <Row>
-                <Col xs={12} md={12} sm={24}>
-                  <Text ellipsis>
-                    <Typography.Link>1JFyG4gDcCip3tboQaUZct4vrBqybUYvd7</Typography.Link>
-                  </Text>
-                </Col>
-                <Col xs={12} md={12} sm={24}>
-                  0.03043553 BTC
-                </Col>
-                <Col xs={12} md={12} sm={24}>
-                  <Text ellipsis>
-                    <Typography.Link>1JFyG4gDcCip3tboQaUZct4vrBqybUYvd7</Typography.Link>
-                  </Text>
-                </Col>
-                <Col xs={12} md={12} sm={24}>
-                  0.03043553 BTC
-                </Col>
-                <Col xs={12} md={12} sm={24}>
-                  <Text ellipsis>
-                    <Typography.Link>1JFyG4gDcCip3tboQaUZct4vrBqybUYvd7</Typography.Link>
-                  </Text>
-                </Col>
-                <Col xs={12} md={12} sm={24}>
-                  0.03043553 BTC
-                </Col>
-                <Typography.Link onClick={loadMore}>Load more outputs...</Typography.Link>
-              </Row>
+              {item.extendOut
+                ? item.littleOuts.map((out) => <OutBase key={out.n} out={out} unit={unit} />)
+                : item.out.map((out) => <OutBase key={out.n} out={out} unit={unit} />)}
+              {item.extendOut && (
+                <Typography.Link onClick={() => setExtend('out', item.hash)}>Load more outputs...</Typography.Link>
+              )}
             </Col>
           </Row>
         </Col>
@@ -283,9 +259,57 @@ const TransactionItem = observer((props) => {
     </>
   );
 });
+const OutBase = observer(({ out, unit }) => {
+  return (
+    <Row>
+      <Col xs={12} md={12} sm={24}>
+        {out.addr ? (
+          <Text ellipsis title={out.addr}>
+            <Typography.Link>{out.addr}</Typography.Link>
+          </Text>
+        ) : (
+          'OP_RETURN'
+        )}
+      </Col>
+      <Col xs={12} md={12} sm={24}>
+        {translationCurrency(out.value, unit)}
+      </Col>
+    </Row>
+  );
+});
+const InputBase = observer(({ input, unit }) => {
+  return (
+    <Row>
+      <Col xs={input.prev_out ? 12 : 20} md={input.prev_out ? 12 : 20} sm={24}>
+        {input.prev_out ? (
+          <Text ellipsis title={input.prev_out.addr}>
+            <Typography.Link>{input.prev_out.addr}</Typography.Link>
+          </Text>
+        ) : (
+          <Text ellipsis className="COINBASE" title="COINBASE (Newly Generated Coins)">
+            COINBASE (Newly Generated Coins)
+          </Text>
+        )}
+      </Col>
+      <Col xs={input.prev_out ? 12 : 4} md={input.prev_out ? 12 : 4} sm={24}>
+        <div>
+          {input.prev_out && (
+            <>
+              <span>{translationCurrency(input.prev_out.value, unit)}</span>
+              <Tooltip title="Output">
+                <Typography.Link> 🌍 </Typography.Link>
+              </Tooltip>
+            </>
+          )}
+          <span className="sm_none"> ➡️ </span>
+        </div>
+      </Col>
+    </Row>
+  );
+});
 BlockITem.propTypes = {
   title: PropTypes.string.isRequired,
-  value: PropTypes.string.isRequired || PropTypes.number.isRequired,
+  value: PropTypes.any.isRequired,
   action: PropTypes.string,
   link: PropTypes.string,
 };

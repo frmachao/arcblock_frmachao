@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import React, { useEffect } from 'react';
 import { Input, Pagination, Spin } from 'antd';
 import { observer } from 'mobx-react-lite';
@@ -29,7 +28,7 @@ const Demo = observer((props) => {
     notifyPage(nextCurrent, pageSize);
   };
   useEffect(() => {
-    demoStore.fetchBlock(query.hash);
+    demoStore.fetchBlock(query.hash, query.current, query.pageSize);
   }, [demoStore.hash]);
   const notifySearch = (v) => {
     props.history.push({
@@ -70,6 +69,7 @@ const Demo = observer((props) => {
         <BlockContainer />
         {demoStore.blockData && (
           <Pagination
+            pageSizeOptions={[5, 10, 20]}
             pageSize={Number(query.pageSize) || pageInfo.pageSize}
             current={Number(query.current) || pageInfo.current}
             total={pageInfo.total}
