@@ -1,147 +1,99 @@
-# Getting Started with Create Blocklet
+## code test
 
-This project was bootstrapped with [Create Blocklet](https://github.com/blocklet/create-blocklet).
+> 开始时间 2021/11/10 10:00 am
 
-This blocklet is a static project, which means this is a frontend application. It's contained `client` code.
+> 结束时间 
 
-## File Structure
+- 开发环境：[ABT Node](https://docs.arcblock.io/abtnode/en/)、[create-blocklet](https://github.com/blocklet/create-blocklet)
+- 需求
+  - 主界面包含输入框，用户输入某个比特币的 Block Hash 后能查询并展示对应 Block 中包含的所有 Transaction
+  - 根据 Block Hash 拿到区块数据
+  - 可以任意输入 Block Hash 来查看结果
+  - 展示区块摘要和分页的交易列表
+  - 响应式布局
+  - 编写测试
 
-- public/ - static files
-  - favicon.ico - favicon
-  - favicon.svg - favicon
-  - index.html - main html file, template for react
-- screenshots/ - Screenshots
-- src/ - Client side code (A standard react app structure)
-- .env - Environment variables
-- .env.local - Local environment variables
-- .eslintrc.js - ESLint configuration
-- .gitignore - Git ignore file
-- .prettierrc - Prettier configuration
-- blocklet.md - Blocklet README
-- blocklet.yml - Blocklet configuration
-- LICENSE - License file
-- logo.png - Blocklet logo file
-- Makefile - Makefile
-- package.json - Npm package file
-- README.md - A guide for this blocklet
-- version - Version file
+## create-blocklet 工具
 
-## Development
+### 遇到到问题 ：
 
-1. Make sure you have [@abtnode/cli](https://www.npmjs.com/package/@abtnode/cli) installed
+1. `npm run dev`报错 `eslint EACCES: permission denied .eslintcache`
+   - 权限问题，使用`sudo npm run dev ` 解决
 
-   Blocklet needs abtnode as a dependency. So you need to install it first.  
-   `npm install -g @abtnode/cli`  
-   See details in [https://docs.arcblock.io/abtnode/en/introduction/abtnode-setup#use-the-binary-distribution](https://docs.arcblock.io/abtnode/en/introduction/abtnode-setup#use-the-binary-distribution)
+## 第三方依赖
 
-2. Init abtnode & start abtnode
+- antd
+- mobx
+- umi-request
+- query-string
 
-   Before starting an abtnode, you need to init abtnode.  
-   `abtnode init --mode=debug`  
-   `abtnode start`  
-   See details in [https://docs.arcblock.io/abtnode/en/introduction/abtnode-setup#configure-abt-node](https://docs.arcblock.io/abtnode/en/introduction/abtnode-setup#configure-abt-node)
+## 区块数据来源
 
-3. Go to the project directory `cd [name]`
-4. Install dependencies: `npm install` or `yarn`
-5. Start development server: `blocklet dev`
+> https://blockchain.info/rawblock/$block_hash
 
-## Bundle
+| 字段名      | 类型               | 备注                                            |
+| ----------- | ------------------ | ----------------------------------------------- |
+| ver         | number             | 网络节点版本号                                  |
+| prev_block  | string             | 上一个区块头的 hash                             |
+| next_block  | Array<string>      |
+| mrkl_root   | string             | Merkle tree                                     |
+| time        | number             | 区块生成时间                                    |
+| bits        | number             | 网络的难度                                      |
+| nonce       | number             | 交易下的 nonce 值，是账户发起交易所维护的 nonce |
+| --          | --                 | --                                              |
+| hash        | string             | 区块的唯一标识                                  |
+| fee         | number             | 酬金?                                           |
+| size        | number             | 当前区块的字节大小                              |
+| block_index | number             | 区块索引                                        |
+| main_chain  | boolean            | 是否在主链上                                    |
+| height      | number             | 区块高度                                        |
+| weight      | number             | 是区块计费的新指标                              |
+| n_tx        | number             | 交易数量                                        |
+| tx          | Array<Transaction> | 交易数组                                        |
 
-After developing a blocklet, you may need to bundle it. Use `npm run bundle` command.
+--Transaction 交易数据--
+字段名 | 类型 | 备注
+---|---|---
+hash | string | 交易哈希
+ver | number | 版本号
+vin_sz | number | 交易输入数量
+vou_sz | number | 交易输出数量
+size | number | 交易字节数
+weight | number |
+fee | number |
+relayed_by | string | 中继点 IP
+lock_time | number | 锁定时间
+tx_index | number | 交易索引
+inputs | Array<Input> | 交易输入数组，每个成员表示一个交易输入对象
+out | Array<Out> | 交易输出数组，每个成员表示一个交易输出对象
 
-## Deploy
+--Input 交易输入数据--
+字段名 | 类型 | 备注
+---|---|---
+sequence | number | 支出方 定义的交易版本
+script | string | 公钥脚本
+witness | string | 交易的证明？
 
-- If you want to deploy this blocklet to local abtnode, you can use `blocklet deploy .blocklet/bundle` command(Make sure the blocklet is bundled before deployment.)
-  > Or you can simply use `npm run deploy` command.
-- If you want to deploy this blocklet to remote abtnode, you can use the command below.
+--Out 交易输出数据--
+字段名 | 类型 | 备注
+---|---|---
+value | number | 输出金额
+script | string | 目标公钥脚本
+addr ｜ string | 钱包地址
 
-  ```shell
-  blocklet deploy .blocklet/bundle --endpoint {your abtnode url} --access-key {abtnode access key} --access-secret {abtnode access secret}
-  ```
+## Start
 
-  > Make sure the blocklet is bundled before deployment.
+```bash
+npm i
+npm run dev
+```
 
-## Upload to blocklet registry
+## Test
 
-- If you want to upload the blocklet to any registry for other users to download and use, you can following the following instructions.
+```bash
+npm run test
+```
+## Preview
+![2021-11-12-HiNklM](https://cdn.jsdelivr.net/gh/frmachao/images@blog/uPic/2021-11-12-HiNklM.png)
 
-  Bump version at first.
-
-  ```shell
-  make bump-version
-  ```
-
-  Then config blocklet registry url.
-  You can use those registry url in below.
-
-  1. [https://registry.arcblock.io/](https://registry.arcblock.io/)
-  2. [https://dev.registry.arcblock.io/](https://dev.registry.arcblock.io/)
-  3. A blocklet registry started by yourself.
-     > Make sure you have installed a `blocklet registry` on your own abtnode. Check it on here: [https://registry.arcblock.io/blocklet/z8ia29UsENBg6tLZUKi2HABj38Cw1LmHZocbQ](https://registry.arcblock.io/blocklet/z8ia29UsENBg6tLZUKi2HABj38Cw1LmHZocbQ)
-
-  ```shell
-  blocklet config set registry {registry url}
-  ```
-
-  Get a `accessToken` from blocklet registry.
-
-  > Why we need a `accessToken`?  
-  > A `accessToken` is genrate by blocklet registry, which help us upload our blocklet to any registry.
-
-  Set `accessToken` to blocklet config
-
-  ```shell
-  blocklet config set accessToken {accessToken}
-  ```
-
-  Upload a new version to a registry.
-
-  > Make sure the blocklet is bundled before upload.
-
-  ```shell
-  blocklet upload
-  ```
-
-  Or you can simply use `npm run upload` command.
-
-- You also can upload a new version to blocklet registry by Github CI.  
-  Bump version at first.
-
-  ```shell
-  make bump-version
-  ```
-
-  Push your code to Github main/master branch, or make a pull request to the main/master branch.  
-  The CI workflow will automatically upload a new version to a registry.
-
-## Q & A
-
-1. Q: How to change a blocklet's name?
-
-   A: Change the `name` field in the `package.json` file, change the `name` field in the `blocklet.yml` file.
-
-   You can also change the `title` field and `description` field in the `blocklet.yml` file.
-
-   Run `blocklet meta` command, you will get a `did` config, copy the `did` value.
-
-   Replace this command `"bundle": "PUBLIC_URL='/.blocklet/proxy/{did}' npm run build",` in `package.json`
-
-   Replace `did` field in the `blocklet.yml`
-
-2. Q: How to change a blocklet's logo?
-
-   Change the `logo.png` file root folder.
-
-   Or you can change the `logo` field in the `blocklet.yml` file.
-
-   > Make sure you have added the logo path to the `blocklet.yml` file `files` field.
-
-## Learn More
-
-- Full specification of `blocklet.yml`: [https://github.com/blocklet/blocklet-specification/blob/main/docs/meta.md](https://github.com/blocklet/blocklet-specification/blob/main/docs/meta.md)
-- Full document of AbtNode & blocklet development: [https://docs.arcblock.io/abtnode/en/introduction](https://docs.arcblock.io/abtnode/en/introduction)
-
-## License
-
-The code is licensed under the Apache 2.0 license found in the
-[LICENSE](LICENSE) file.
+![2021-11-12-E9PIqO](https://cdn.jsdelivr.net/gh/frmachao/images@blog/uPic/2021-11-12-E9PIqO.png)
