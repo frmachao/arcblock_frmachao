@@ -1,8 +1,8 @@
 ## code test
 
-> 开始时间 2021/11/10 10:00 am
+> 开始时间 Wed Nov 10 10:00:00 2021 +0800
 
-> 结束时间 
+> 结束时间 Fri Nov 12 16:56:06 2021 +0800
 
 - 开发环境：[ABT Node](https://docs.arcblock.io/abtnode/en/)、[create-blocklet](https://github.com/blocklet/create-blocklet)
 - 需求
