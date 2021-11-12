@@ -6,7 +6,7 @@ const Home = () => {
   return (
     <header className="app-header">
       <img src={logo} className="app-logo" alt="logo" />
-      <Link className="app-link" to="/demo">
+      <Link className="app-link" to="/demo" data-testid="demo-link">
         Demo Prower by machao
       </Link>
       <Link className="app-link" to="/about">

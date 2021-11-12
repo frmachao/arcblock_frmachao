@@ -53,8 +53,8 @@ const Demo = observer((props) => {
     demoStore.setCurrentData(current, pageSize);
   };
   return (
-    <div className="demo_container">
-      <h2 style={{ textAlign: 'center' }}>demo</h2>
+    <div data-testid="demo-container" className="demo_container">
+      <h2 style={{ textAlign: 'center' }}>Demo page</h2>
       <Search
         loading={demoStore.loading}
         style={{ padding: '2rem' }}

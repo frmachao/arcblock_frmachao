@@ -4,7 +4,7 @@ import { useLocalObservable } from 'mobx-react-lite';
 import request from './request';
 import { awaitWrap } from './utils';
 
-const DemoContext = createContext(null);
+export const DemoContext = createContext(null);
 
 export const DemoState = ({ children }) => {
   const store = useLocalObservable(() => ({

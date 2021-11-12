@@ -1,0 +1,40 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should take a snapshot 1`] = `
+<DocumentFragment>
+  <div
+    class="app"
+  >
+    <header
+      class="app-header"
+    >
+      <img
+        alt="logo"
+        class="app-logo"
+        src="logo.svg"
+      />
+      <a
+        class="app-link"
+        data-testid="demo-link"
+        href="/demo"
+      >
+        Demo Prower by machao
+      </a>
+      <a
+        class="app-link"
+        href="/about"
+      >
+        About
+      </a>
+      <a
+        class="app-link"
+        href="https://docs.arcblock.io/abtnode/"
+        rel="noopener noreferrer"
+        target="_blank"
+      >
+        Learn Blocklet
+      </a>
+    </header>
+  </div>
+</DocumentFragment>
+`;
